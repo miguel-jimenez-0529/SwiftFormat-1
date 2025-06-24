@@ -19,7 +19,9 @@ public extension FormatRule {
         let allDeclarations = formatter.parseDeclarations()
 
         for declaration in allDeclarations where declaration.keyword == "struct" {
-            guard case let .type(structDeclaration) = declaration.kind else { continue }
+            guard case let .type(structDeclaration) = declaration.kind,
+                  structDeclaration.visibility() != .public
+            else { continue }
 
             // Get the struct's access level
             let structAccessLevel = declaration.accessLevel()
@@ -306,6 +308,7 @@ extension Formatter {
                   property.identifier == propertyName,
                   property.value != nil
             else { continue }
+            return true
         }
         return false
     }

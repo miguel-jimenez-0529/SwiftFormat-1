@@ -152,7 +152,7 @@ class RedundantMemberwiseInitTests: XCTestCase {
         testFormatting(for: input, rule: .redundantMemberwiseInit, exclude: [.redundantSelf, .trailingSpace, .indent])
     }
 
-    func testRemovePublicInitFromPublicStructDuplicate() {
+    func testDontRemovePublicInitFromPublicStruct() {
         let input = """
         public struct Person {
             var name: String
@@ -164,13 +164,7 @@ class RedundantMemberwiseInitTests: XCTestCase {
             }
         }
         """
-        let output = """
-        public struct Person {
-            var name: String
-            var age: Int
-        }
-        """
-        testFormatting(for: input, output, rule: .redundantMemberwiseInit)
+        testFormatting(for: input, rule: .redundantMemberwiseInit, exclude: [.redundantSelf, .trailingSpace, .indent])
     }
 
     func testRemoveInitWithComputedProperties() {
@@ -575,7 +569,7 @@ class RedundantMemberwiseInitTests: XCTestCase {
         testFormatting(for: input, rule: .redundantMemberwiseInit, exclude: [.redundantSelf, .trailingSpace, .indent])
     }
 
-    func testRemovePublicInitFromPublicStruct() {
+    func testDontRemovePublicInitFromPublicStruct2() {
         let input = """
         public struct Person {
             var name: String
@@ -587,13 +581,7 @@ class RedundantMemberwiseInitTests: XCTestCase {
             }
         }
         """
-        let output = """
-        public struct Person {
-            var name: String
-            var age: Int
-        }
-        """
-        testFormatting(for: input, output, rule: .redundantMemberwiseInit)
+        testFormatting(for: input, rule: .redundantMemberwiseInit, exclude: [.redundantSelf, .trailingSpace, .indent])
     }
 
     func testDontRemoveInitWhenMultipleInitsExist() {
@@ -903,7 +891,7 @@ class RedundantMemberwiseInitTests: XCTestCase {
         testFormatting(for: input, output, rule: .redundantMemberwiseInit)
     }
 
-    func testRemoveRedundantPublicMemberwiseInitWithProperFormattingOfFirstProperty() {
+    func testDontRemoveRedundantPublicMemberwiseInitFromPublicStruct() {
         let input = """
         public struct CardViewAnimationState {
             public init(
@@ -918,16 +906,10 @@ class RedundantMemberwiseInitTests: XCTestCase {
             public let backgroundColor: UIColor?
         }
         """
-        let output = """
-        public struct CardViewAnimationState {
-            public let style: CardStyle
-            public let backgroundColor: UIColor?
-        }
-        """
-        testFormatting(for: input, output, rule: .redundantMemberwiseInit)
+        testFormatting(for: input, rule: .redundantMemberwiseInit, exclude: [.redundantSelf, .trailingSpace, .indent])
     }
 
-    func testRemoveRedundantMemberwiseInitWithComplexStruct() {
+    func testDontRemoveRedundantMemberwiseInitFromPublicStructs() {
         let input = """
         public struct Foo {
 
@@ -967,266 +949,40 @@ class RedundantMemberwiseInitTests: XCTestCase {
           public let id: String
           public let count: Int
         }
+        """
+        testFormatting(for: input, rule: .redundantMemberwiseInit, exclude: [.indent, .acronyms, .blankLinesAtStartOfScope, .redundantSelf, .trailingSpace])
+    }
 
-        // MARK: - Baz
+    func testRemoveRedundantMemberwiseInitFromInternalStructs() {
+        let input = """
+        struct Foo {
+            let name: String
+            let value: Int
 
-        public struct Baz: Equatable {
-
-          // MARK: Lifecycle
-
-          public init(
-            title: String,
-            subtitle: String?,
-            data: [String]
-          ) {
-            self.title = title
-            self.subtitle = subtitle
-            self.data = data
-          }
-
-          // MARK: Public
-
-          public let title: String
-          public let subtitle: String?
-          public let data: [String]
+            init(name: String, value: Int) {
+                self.name = name
+                self.value = value
+            }
         }
 
-        // MARK: - Qux
-
-        public struct Qux: Equatable {
-
-          // MARK: Lifecycle
-
-          public init(
-            key: String,
-            value: String?
-          ) {
-            self.key = key
-            self.value = value
-          }
-
-          // MARK: Public
-
-          public let key: String
-          public let value: String?
-        }
-
-        // MARK: - Widget
-
-        public struct Widget: Equatable {
-
-          // MARK: Lifecycle
-
-          public init(
-            name: String,
-            color: String,
-            size: Int
-          ) {
-            self.name = name
-            self.color = color
-            self.size = size
-          }
-
-          // MARK: Public
-
-          public let name: String
-          public let color: String
-          public let size: Int
-        }
-
-        // MARK: - Item
-
-        public struct Item: Equatable {
-
-          // MARK: Lifecycle
-
-          public init(
-            identifier: String,
-            label: String
-          ) {
-            self.identifier = identifier
-            self.label = label
-          }
-
-          // MARK: Public
-
-          public let identifier: String
-          public let label: String
-        }
-
-        // MARK: - Component
-
-        public struct Component: Equatable {
-          public init(type: String, config: [String: Any]) {
-            self.type = type
-            self.config = config
-          }
-
-          public let type: String
-          public let config: [String: Any]
-        }
-
-        // MARK: - Element
-
-        public struct Element: Equatable {
-
-          // MARK: Lifecycle
-
-          public init(
-            tag: String,
-            attributes: [String]?,
-            content: String
-          ) {
-            self.tag = tag
-            self.attributes = attributes
-            self.content = content
-          }
-
-          // MARK: Public
-
-          public let tag: String
-          public let attributes: [String]?
-          public let content: String
-        }
-
-        // MARK: - Node
-
-        public struct Node: Equatable {
-
-          // MARK: Lifecycle
-
-          public init(id: String, parent: String?, children: [String]) {
-            self.id = id
-            self.parent = parent
-            self.children = children
-          }
-
-          // MARK: Public
-
-          public let id: String
-          public let parent: String?
-          public let children: [String]
-        }
-
-        // MARK: - Record
-
-        public struct Record: Equatable {
-
-          // MARK: Lifecycle
-
-          public init(
-            timestamp: Double,
-            message: String
-          ) {
-            self.timestamp = timestamp
-            self.message = message
-          }
-
-          // MARK: Public
-
-          public let timestamp: Double
-          public let message: String
+        internal struct Bar {
+            let id: String
+            
+            internal init(id: String) {
+                self.id = id
+            }
         }
         """
         let output = """
-        public struct Foo {
-
-          // MARK: Public
-
-          public let name: String
-          public let value: Int
-          public let isEnabled: Bool
+        struct Foo {
+            let name: String
+            let value: Int
         }
 
-        public struct Bar: Equatable {
-
-          // MARK: Public
-
-          public let id: String
-          public let count: Int
-        }
-
-        // MARK: - Baz
-
-        public struct Baz: Equatable {
-
-          // MARK: Public
-
-          public let title: String
-          public let subtitle: String?
-          public let data: [String]
-        }
-
-        // MARK: - Qux
-
-        public struct Qux: Equatable {
-
-          // MARK: Public
-
-          public let key: String
-          public let value: String?
-        }
-
-        // MARK: - Widget
-
-        public struct Widget: Equatable {
-
-          // MARK: Public
-
-          public let name: String
-          public let color: String
-          public let size: Int
-        }
-
-        // MARK: - Item
-
-        public struct Item: Equatable {
-
-          // MARK: Public
-
-          public let identifier: String
-          public let label: String
-        }
-
-        // MARK: - Component
-
-        public struct Component: Equatable {
-          public let type: String
-          public let config: [String: Any]
-        }
-
-        // MARK: - Element
-
-        public struct Element: Equatable {
-
-          // MARK: Public
-
-          public let tag: String
-          public let attributes: [String]?
-          public let content: String
-        }
-
-        // MARK: - Node
-
-        public struct Node: Equatable {
-
-          // MARK: Public
-
-          public let id: String
-          public let parent: String?
-          public let children: [String]
-        }
-
-        // MARK: - Record
-
-        public struct Record: Equatable {
-
-          // MARK: Public
-
-          public let timestamp: Double
-          public let message: String
+        struct Bar {
+            let id: String
         }
         """
-        testFormatting(for: input, output, rule: .redundantMemberwiseInit, exclude: [.indent, .acronyms, .blankLinesAtStartOfScope])
+        testFormatting(for: input, output, rule: .redundantMemberwiseInit, exclude: [.redundantInternal])
     }
 }
